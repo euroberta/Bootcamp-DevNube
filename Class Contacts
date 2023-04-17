@@ -16,7 +16,7 @@ public with sharing class Contacts {
   }     
          insert accs;
 } 
-        else if (lastNames.size() != accs.size()) {
+        else if(lastNames.size() != accs.size()) {
          List<String> existingNames = new List<String>();
           for (Account acc : accs) {
            existingNames.add(acc.Name);
@@ -38,11 +38,11 @@ public with sharing class Contacts {
      }
    }        
  }      
-        if(accs.isEmpty()) {
+        if(existingName.isEmpty()) {
          existingName = new List<Account>();
           for (String fn : firstNames) {
-           Account newAcc = new Account(Name = fn);
-            existingName.add(newAcc);
+           Account newFirstName = new Account(Name = fn);
+            existingName.add(newFirstName);
    }
         insert existingName; 
 } 
