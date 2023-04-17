@@ -18,16 +18,22 @@ public with sharing class Contacts {
           for(Account acc : accs) {
            existingNames.add(acc.Name);
  }
-           
+        accs = new List<Account>();
+         for (String ln : lastNames) {
+            if (!existingNames.contains(ln)) {
+              Account newAcc = new Account(Name = ln);
+                accs.add(newAcc);
+            }
+        }  
         insert newAccs; 
         accs.addAll(newAccs);
     }
-     for(Account acc : accs) {
+       for(Account acc : accs) {
         members.add(new Contact(FirstName = firstName, LastName = lastName, AccountId = acc.Id));
     }
     return members;
 }
-    private static List<String> getFamilies(String lastName) {
+     private static List<String> getFamilies(String lastName) {
         List<String> families = new List<String>();
         List<String> lastNames = lastName.split(' ');
         Integer lastNamesQuantity = lastNames.size();
@@ -37,7 +43,7 @@ public with sharing class Contacts {
         }
         return families;
     }   
-    public static List<String> buildLastNames(List<String> lastNames, Integer lastNamesQuantity, Integer startingIndex) {
+     public static List<String> buildLastNames(List<String> lastNames, Integer lastNamesQuantity, Integer startingIndex) {
         List<String> lastNameTemp = new List<String>();
         String currentLastName = '';
         for (Integer j = startingIndex; j < lastNamesQuantity; j++) {
