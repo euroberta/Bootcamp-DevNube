@@ -18,13 +18,7 @@ public with sharing class Contacts {
           for(Account acc : accs) {
            existingNames.add(acc.Name);
  }
-        List<Account> newAccs = new List<Account>();
-         for (String ln : lastNames) {
-          if (!existingNames.contains(ln)) {
-            Account newAcc = new Account(Name = ln);
-            newAccs.add(newAcc);
-            }
-        }      
+           
         insert newAccs; 
         accs.addAll(newAccs);
     }
