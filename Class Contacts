@@ -22,7 +22,7 @@ public with sharing class Contacts {
          for (String ln : lastNames) {
             if (!existingNames.contains(ln)) {
               Account newAcc = new Account(Name = ln);
-                accs.add(newAcc);
+              accs.add(newAcc);
             }
         }  
         insert newAccs; 
