@@ -1,13 +1,15 @@
 public with sharing class Contacts {
     
-    public static List<Contact> createMembers(String firstName, String lastName) {
+     public static List<Contact> createMembers(String firstName, String lastName) {
         List<Contact> members = new List<Contact>();
+        
         List<String> lastNames = new List<String>(getFamilies(lastName));
         List<Account> accs = [SELECT Id FROM Account WHERE Name IN :lastNames]; 
        
         List<String> firstNames = new List<String>(getFirstName(firstName));
-        List<Account> existingName = [SELECT Id FROM Account WHERE Name IN :firstNames];        
-        
+        List<Account> existingFirstName = [SELECT Id FROM Account WHERE Name IN :firstNames];        
+   
+    // Inicializa a lista de contas vazia, caso não haja nenhuma correspondente às famílias, adicione !
         if(accs.isEmpty()) {
          accs = new List<Account>();
           for (String ln : lastNames) {
@@ -15,39 +17,34 @@ public with sharing class Contacts {
             accs.add(newAcc);
   }     
          insert accs;
-} 
+}   // Se houver menos contas do que sobrenomes, cria novas contas com os sobrenomes faltantes
         else if(lastNames.size() != accs.size()) {
-         List<String> existingNames = new List<String>();
+         List<String> existingLastNames = new List<String>();
           for (Account acc : accs) {
-           existingNames.add(acc.Name);
+           existingLastNames.add(acc.Name);
 }
         accs = new List<Account>();
          for (String ln : lastNames) {
-          if (!existingNames.contains(ln)) {
+    // Se o sobrenome não estiver presente nas contas existentes, cria uma nova conta com o sobrenome especificado
+          if (!existingLastNames.contains(ln)) {
            Account newAcc = new Account(Name = ln);
             accs.add(newAcc);
    }
 }      
         insert accs; 
-        accs.addAll(accs);
-// Verifica se todas as famílias foram adicionadas à variável accs
-// Se alguma família não estiver presente, retorna uma lista vazia para indicar que a criação de membros não foi bem sucedida        
-         for (String ln : lastNames) {
-         if (!existingNames.contains(ln)) {
-         return new List<Contact>();
-     }
-   }        
- }      
-        if(existingName.isEmpty()) {
-         existingName = new List<Account>();
+        accs.addAll(accs);        
+}    
+    // cria novos registros de Conta para cada primeiro nome fornecido, somente se não existir um registro de Conta correspondente com o mesmo primeiro nome.
+        if(existingFirstName.isEmpty()) {
+         existingFirstName = new List<Account>();
           for (String fn : firstNames) {
            Account newFirstName = new Account(Name = fn);
-            existingName.add(newFirstName);
+            existingFirstName.add(newFirstName);
    }
-        insert existingName; 
+        insert existingFirstName; 
 } 
          for(Account acc : accs) {
-            members.add(new Contact(FirstName = firstName, LastName = lastName, AccountId = acc.Id));
+          members.add(new Contact(FirstName = firstName, LastName = lastName, AccountId = acc.Id));
         }
        return members;
 }
@@ -60,20 +57,18 @@ public with sharing class Contacts {
          families.addAll(buildLastNames(lastNames, lastNamesQuantity, i));
        }
         return families;
-}   
-    private static List<String> getFirstName (String firstName) {
+}     
+      private static List<String> getFirstName(String firstName) {
         List<String> existingNames = new List<String>();
         List<String> ListfirstName = firstName.split(' ');
-        Integer firstNamesQuantity = ListfirstName.size();
-        
-        for (Integer i = 0; i < firstNamesQuantity; i++) {
-         List<Contact> contacts = [SELECT Id FROM Contact WHERE FirstName = :ListfirstName[i]];
-          if (!contacts.isEmpty()) {
-           existingNames.add(ListfirstName[i]);
-     }
-  }
+        Set<String> firstNamesSet = new Set<String>(ListfirstName);
+        List<Contact> firstNames = [SELECT FirstName FROM Contact WHERE FirstName IN :firstNamesSet];
+
+        for (Contact fn : firstNames) {
+         existingNames.add(fn.firstName);
+   }
         return existingNames;
-} 
+}  
     public static List<String> buildLastNames(List<String> lastNames, Integer lastNamesQuantity, Integer startingIndex) {
         List<String> lastNameTemp = new List<String>();
         String currentLastName = '';
